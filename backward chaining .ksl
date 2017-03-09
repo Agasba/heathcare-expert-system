@@ -1,0 +1,104 @@
+/*Healthcare Sytem*/
+/*  Part 2 : An Expert System  In Flex  Implemetantion*/
+
+/*Default frame values for testing data in instances for backward Chaining */
+frame patient;
+default risk is low /*patient risk - low/medium/high */
+and default clinical_trial is justifiable 
+and default condition is days /*patients condition - days/weeks/months */
+and default antibodyCount is low /*antibodycount is low*/ 
+and default lifestyle is active 
+and default anaemia is absent
+and default blood_pressure is normal
+and default admission is nothing. /*leave this as nothing */
+
+/*bernard is another instance of frame patient*/
+instance bernard is a patient;
+risk is medium  
+and antibodyCount is medium  
+and lifestyle is sedentary  
+and clinical_trial is justifiable
+and condition is weeks
+and anaemia is present
+and blood_pressure is raised.
+
+/*beatrice is another instance of frame patient*/
+instance beatrice is a patient;
+risk is high
+and antibodyCount is low
+and lifestyle is active
+and condition is days
+and anaemia is absent.
+
+/*bertha is another instance of frame patient*/
+instance bertha is a patient;
+risk is high
+and clinical_trial is unjustifiable
+and condition is months.
+/*bundalla is another instance of frame patient*/
+instance bundalla is a patient; 
+risk is low
+and lifestyle is sedentary
+and condition is weeks
+and anaemia is absent
+and blood_pressure is normal.
+
+
+/* Recommendation output is inpatient*/
+relation patient_type(PT)
+if PT is an instance of patient
+and not checked(PT)
+and PT`s antibodyCount is medium
+and PT`s lifestyle is sedentary
+and PT`s risk is included in {low,medium}
+and PT`s anaemia is present
+and PT`s blood_pressure is raised
+and write('inpatient')
+and remember that checked(PT).
+
+
+/* Recommendation output is Outpatient*/
+relation patient_type(PT)
+if PT is an instance of patient
+and not checked(PT)
+and PT`s clinical_trial is justifiable
+and PT`s antibodyCount is low
+and PT`s anaemia is absent
+and PT`s lifestyle is active
+and write('Outpatient')
+and remember that checked(PT).
+/* Recommendation output is Daypatient*/
+relation patient_type(PT)
+if PT is an instance of patient
+and not checked(PT)
+and PT`s clinical_trial is unjustifiable
+and PT`s condition is months
+and write ('Daypatient')
+and remember that checked(PT).
+
+/* Recommendation output is Waitinglist*/
+relation patient_type(PT)
+if PT is an instance of patient
+and not checked (PT)
+and write('Waitinglist')
+and remember that checked(PT).
+
+/*Action diagnose for backward chaining program*/
+action diagnose;
+do restart
+and write('Backward Chaining') and nl and nl and 
+do for every PT is some patient
+do write(' Recommended admission ')
+and write(PT) and write(' is : ')
+and patient_type(PT) and nl
+end for and nl
+and write ('Checked Finish.') and nl.
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,252 @@
+/*   AN  HEALTHCARE EXPERT SYSTEM */ 
+
+/*Question which appeared on the console*/
+/* Asking the patient to specifiy risk if it low,medium,high */
+question risk
+	'Please specify the patient risk';
+	choose from low,medium,high.
+
+/*Asking the patient the lifestyle if it active, sedentary*/
+question lifestyle
+	'Please specify the patient lifestle';
+	choose from active ,sedentary.
+
+/*Asking the time condition for a parient if it's a days,weeks,months */
+question condition_time
+	'Please specify how long this patient has been affected';
+	choose from days,weeks,months.
+
+/*Asking the patient the level of anaemia if it's present or absent*/
+question anaemia
+	'Please classify the level of Anaemia';
+	choose from present ,absent.
+
+/*Asking the patient the blood pressure if it's raised ,normal*/
+question blood_pressure
+	'Please classify the level of the patient blood pressure';
+	choose from raised,normal.
+
+
+/*  Describing the  patient group if it's risk_group,lifestyle_group,
+condition_time_group,anaemia_group, blood_pressure_group */
+/*Risk group -low/medium/high*/
+group risk_group
+low,medium,high. 
+/*lifestyle */
+group lifestyle_group
+sedentary,active.
+
+group condition_time_group
+days,weeks,months.
+
+group  anaemia_group
+present ,absent.
+
+group blood_pressure_group
+raised ,normal.
+
+
+/* Describing the patient group if risk_group, 
+	lifestyle_group,condition_time_group
+	anaemia_groupblood_pressure_group */
+
+question risk
+	'Please specify the patient risk';
+	choose one of risk_group.
+
+question condition_time
+	'Please how long has this patient has been affected';
+	choose one of condition_time_group.
+
+question lifestyle
+	'Please specify the patient lifestyle';
+	choose one of lifestyle_group.
+
+question anaemia
+	'Please classify the level of anaemia';
+	choose one of anaemia_group.
+
+
+question blood_pressure
+	'Please classify the blood pressure measurements';
+	choose one of blood_pressure_group.
+
+
+
+/*  Relation for Justifiable output on  console*/
+
+relation trial(justifiable)
+if risk is low
+or risk is medium 
+and write('relation trial (justifiable) fired').
+
+/* Relation for Unjustifiable output on  console*/
+relation trial(unjustifiable)
+if risk is high
+and write('relation trial (Unjustifiable) fired').
+
+/*  Relation for antibodycount(low) output on  console*/
+relation antibodyCount(low)
+if condition_time is days
+and write('antibodycount(low) fired').
+
+/* Relation for antibondycount(medium) output on  console*/
+relation trial(medium)
+if condition_time is weeks
+and write('antibodycount(medium) fired').
+
+/* Relation for antbodycount(high) output on  console*/
+relation trial(high)
+if condition_time is months
+and write('antibodycount(high) fired').
+
+/* Relation for inpatient output on  console*/
+relation admission(inpatient)
+if [antibodyCount (medium)
+and lifestyle is sedentary 
+and trial (justifiable)
+and anaemia is present 
+and blood_pressure is raised]
+and write ('admission (inpatient) fired').
+
+/* Relation for daypatient output on  console*/
+relation admission (daypatient)
+if antibodyCount(high)
+or trial (unjustifiable)
+and write('relation trial(justifiable) fired').
+
+/* Relation for outpatient output on  console*/
+relation admission(outpatient)
+if[antibodyCount (low) and check that risk is not high]
+or [anaemia is absent and lifestyle is active]
+and write ('admission(outpatient) fired').
+
+/* Relation for Waitinglist output on  console*/
+relation admission(waitinglist)
+if [not (admission (inpatient))
+and not(admission(oupatient))
+and not(admission(daypatient))]
+and write ('admission(waitinglist) fired').
+
+
+/* Define the rule  r1 as justified*/
+rule r1
+if the risk is low
+then write(' r1 low fired')
+and nl
+and write('Admission justified')
+and nl and nl
+and trial becomes justifiable.
+
+/* Define the rule  r2 as justified*/
+rule r2 
+if the risk is medium
+then write(' r2 low risk fired')
+and nl
+and write('Admission justified')
+and nl and nl
+and trial becomes justifiable.
+/* Define the rule  r3 as unjustified*/
+rule r3
+if the risk is high
+then write(' r3 high risk fired')
+and nl
+and write('Admission unjustifiable')
+and nl and nl 
+and trial becomes unjustifiable.
+
+/* Define the rule  r4 as anticountbody is low*/
+rule r4
+if condition_time is days
+then write(' r4 condition time fired')
+and nl
+and write('Antibody count low')
+and nl and nl
+and antibodyCount becomes low.
+
+/* Define the rule  r5 as anticountbody is medium*/
+rule r5
+if condition_time is weeks
+and nl
+then write(' r5 condition fired')
+and nl
+and write ('Antibody count medium')
+and antibodyCount becomes medium.
+
+/* Define the rule  r4 as anticountbody is high*/
+
+rule r6 
+if condition_time is months 
+then write(' r6 time condition fired')
+and nl
+and write('Antibody count high')
+and nl and nl
+and antibodyCount becomes high.
+
+/* Define the rule  r7 inpatient*/
+
+rule r7 
+if [antibodyCount is medium
+and lifestyle is sedentary
+and trial is justifiable
+and anaemia is present
+and blood_pressure is raised]
+then nl and nl
+and write (' r7 condition admission fired')
+and nl
+and write ('Admission inpatient')
+and nl and nl
+and admission becomes inpatient.
+
+/* Define the rule  r8 as outpatient */
+
+rule r8
+if antibodyCount is low
+or [anaemia is absent
+and lifestyle is active]
+then write (' r8 admission fired')
+and nl
+and write ('Admission outpatient')
+and nl and nl
+and admission becomes oupatient.
+
+/* Define the rule  r9 as daypatient */
+rule r9 
+if antibodyCount is high
+or trial is unjustifiable
+then write  (' r9 admission fired')
+and nl
+and write ('Admission daypatient')
+and nl and nl
+and admission becomes daypatient.
+
+/* Define the rule  r8 as waitinglist */
+rule r10
+if [admission is not inpatient
+and admission is not oupatient
+and admission is not daypatient]
+then write (' r10 admission fired')
+and nl
+and write('Admission waitinglist')
+and nl and nl
+and admission becomes waitinglist.
+
+/*Define the ruleset */
+
+ruleset assesment
+contains all rules;
+select rule using first come first served;
+update ruleset by removing each selected rule;
+initiate by doing restart.
+
+/* Test the output by Forward Chain by using the action diagnose*/
+action diagnose;
+write('Finding out if patient is admittable') and nl
+and invoke ruleset assesment
+and nl and nl
+and write('Recommended Action is : ')
+and write ('admission')
+and nl.
+
+
+
